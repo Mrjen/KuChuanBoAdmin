@@ -31,6 +31,7 @@ export default {
     getBreadcrumb() {
       let matched = this.$route.matched.filter(item => item.name);
       const first = matched[0];
+      console.log('first',first)
       if (first && first.name !== "dashboard") {
         matched = [{ path: "/dashboard", meta: { title: "Dashboard" } }].concat(
           matched

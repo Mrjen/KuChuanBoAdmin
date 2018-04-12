@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-container">
-    <Overview></Overview>
-    <ul class="tag-nav">
-       <li v-for="(item,idx) in tagNav"
-           :key="item.id"
-           @click="changeData(idx)"
-           :class="item.active?'tag-active':''">{{item.text}}</li>
-    </ul>
+    
+    <Overview :Statistics="Statistics"></Overview>
+
+    <tagNav class="date-tab" 
+                @changeNavData="changeNavData">
+    </tagNav>
     <div class="chart">
+        <h4>趋势图</h4>
         <g2-line :charData="serverData"></g2-line>
     </div>
     
@@ -18,33 +18,21 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import axios from 'axios'
 
 import Overview from './components/overview';
 import G2Line from './components/g2Line';
+import { yesterdayOverview } from '../../api/dashboard';
+import api from '../../api/apiUrl';
+import tagNav from '../pageAnalysis/components/tab-tag'
 
 export default {
   name: 'dashboard',
   data() {
     return {
       serverData: null,
-      c1: 'c12',
-      tagNav:[{
-        active:true,
-        text:'今天',
-        id:1
-      },{
-        active:false,
-        text:'昨天',
-        id:2
-      },{
-        active:false,
-        text:'最近7天',
-        id:3
-      },{
-        active:false,
-        text:'最近30天',
-        id:4
-      }]
+      Statistics:{},
+      appList:[]
     }
   },
   computed: {
@@ -55,37 +43,42 @@ export default {
   },
   components: {
     G2Line,
-    Overview
+    Overview,
+    tagNav
   },
-  created() {
-    setTimeout(() => {
-      this.serverData = [{ date: "2017-01-11", newuser: 123, visituser:212 }, 
-            { date: "2017-01-12", newuser: 246, visituser:352 },
-            { date: "2017-01-13", newuser: 259, visituser:421 },
-            { date: "2017-01-14", newuser: 321, visituser:212 },
-            { date: "2017-01-15", newuser: 432, visituser:358 },
-            { date: "2017-01-16", newuser: 540, visituser:123 },
-            { date: "2017-01-17", newuser: 540, visituser:123 },
-            { date: "2017-01-18", newuser: 540, visituser:123 },
-            { date: "2017-01-19", newuser: 540, visituser:123 },
-            { date: "2017-01-20", newuser: 540, visituser:123 },
-            { date: "2017-01-21", newuser: 540, visituser:123 },
-            { date: "2017-01-22", newuser: 540, visituser:123 },
-            { date: "2017-01-23", newuser: 540, visituser:123 },
-            { date: "2017-01-24", newuser: 540, visituser:123 },
-            { date: "2017-01-25", newuser: 540, visituser:123 },
-            { date: "2017-01-26", newuser: 540, visituser:123 },
-            { date: "2017-01-27", newuser: 540, visituser:123 }]
-    }, 100)
+  async created() {
+    // 获取chart数据
+    this.getChartDate(-1).then(res => {
+      this.serverData = res.data.data.statistics;
+    });  
   },
-  methods:{
-    changeData(idx){
-       let tagNav = this.tagNav;
-       tagNav.map(el=>{
-         el.active = false;
-       })
-       tagNav[idx].active = true;
-       this.tagNav = tagNav;
+  async mounted() {
+    // 获取昨日概况
+    const json = await axios.get(api.yesterdayOverview, {
+      params: {
+        id: 0,
+        sign: this.myGobel.sign
+      }
+    })
+    this.Statistics = json.data.data.Statistics[0];
+  },
+  methods: {
+    // 切换昨天、7天、30天
+    async changeNavData(data) {
+      this.getChartDate(data).then(res=>{
+        this.serverData = res.data.data.statistics;
+      });
+    },
+    // 获取昨天、7天、30数据
+    async getChartDate(time) {
+      const Data = await axios.get(api.TrendLineChart,{
+        params: {
+          sign: this.myGobel.sign,
+          oa_id: sessionStorage.getItem('currentApplet'),
+          time: time
+        }
+      })
+      return Data;
     }
   }
 }
@@ -106,8 +99,12 @@ export default {
 }
 .chart{
   border:1px solid rgba(230, 230, 230, 0.8);
-  border-radius: 0 0 4px 4px;
-  border-top: none;
+  border-radius: 4px;
+  padding-top: 20px;
+  h4{
+    font-weight: lighter;
+    padding-left: 40px;
+  }
 }
 
 .tag-nav{
@@ -129,5 +126,13 @@ export default {
     font-weight: bold;
   }
 }
+
+.date-tab{
+    width: 100%;
+    height: 50px;
+    border:1px solid rgba(230, 230, 230, 0.8);
+    border-radius: 0 0 4px 4px;
+    margin:0 0 30px 0;
+  }
 
 </style>

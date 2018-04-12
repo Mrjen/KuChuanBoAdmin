@@ -6,18 +6,19 @@
     <breadcrumb></breadcrumb>
     
     <div class="right-menu">
-      <el-dropdown>
-        <el-button type="primary">
-          默契大考验<i class="el-icon-arrow-down el-icon--right"></i>
-        </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>黄金糕</el-dropdown-item>
-          <el-dropdown-item>狮子头</el-dropdown-item>
-          <el-dropdown-item>螺蛳粉</el-dropdown-item>
-          <el-dropdown-item>双皮奶</el-dropdown-item>
-          <el-dropdown-item>蚵仔煎</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+
+    <el-select v-model="currentApplet" 
+               @change="changeApplet($event)"  
+               filterable 
+               placeholder="请选择">
+        <el-option
+          v-for="(item,idx) in appList"
+          :key="item.value"
+          :value-key="item.nick_name"
+          :label="item.label"  
+          :value="item.value">
+        </el-option>
+      </el-select>
   </div>
 
     <el-dropdown class="avatar-container" trigger="click">
@@ -39,13 +40,47 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import axios from 'axios'
+import api from '../../../api/apiUrl';
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
 export default {
+  data(){
+     return {
+        appList:[],
+        currentApplet:'小程序总览'
+     }
+  },
   components: {
     Breadcrumb,
     Hamburger
+  },
+  async mounted(){
+      let appList = await axios.get(api.getApplets,{
+      params:{
+         sign:this.myGobel.sign
+      }
+    })
+    console.log('appList 小程序列表',appList.data.data.applets)
+    let _appList = appList.data.data.applets;
+        _appList.map(el=>{
+           el.value = el.oa_id;
+           el.label = el.nick_name;
+        })
+    
+    if(sessionStorage.getItem('currentApplet')){
+      let ao_id = sessionStorage.getItem('currentApplet');
+      console.log('ao_id',ao_id)
+      for(let i=0,len=_appList.length;i<len;i++){
+         if(ao_id == _appList[i].oa_id){
+             this.currentApplet = _appList[i].label;
+             this.myGobel.currentAppletName = _appList[i].label;
+             break;
+         }
+      }
+    }
+    this.appList = _appList;
   },
   computed: {
     ...mapGetters([
@@ -61,7 +96,18 @@ export default {
       this.$store.dispatch('LogOut').then(() => {
         location.reload() // 为了重新实例化vue-router对象 避免bug
       })
+    },
+    // 切换小程序
+    changeApplet(value){
+      console.log(this.myGobel)
+      console.log('切换小程序了',value)
+      this.myGobel.currentApplet = value;
+      sessionStorage.setItem('currentApplet', value);
+      location.reload();
     }
+  },
+  created(){
+     console.log('created执行了')
   }
 }
 </script>

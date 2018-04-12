@@ -20,22 +20,24 @@ export default {
     tagNav: {
       type: Array,
       default: function() {
-        return [{
+        return [
+          // {
+          //   active: true,
+          //   text: "今天",
+          //   id: 1
+          // }
+          {
             active: true,
-            text: "今天",
-            id: 1
-          },{
-            active: false,
             text: "昨天",
-            id: 2
+            id: -1
           },{
             active: false,
             text: "最近7天",
-            id: 3
+            id: 7
           },{
             active: false,
             text: "最近30天",
-            id: 4
+            id: 30
           }]
       }
     }

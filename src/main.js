@@ -15,6 +15,12 @@ import store from './store'
 import '@/icons' // icon
 import '@/permission' // permission control
 
+import VCharts from 'v-charts'
+
+import myGobel from './utils/globel';
+
+Vue.prototype.myGobel = myGobel;
+Vue.use(VCharts)
 // Vue.use(ElementUI, { locale })
 Vue.use(ElementUI)
 Vue.config.productionTip = false
