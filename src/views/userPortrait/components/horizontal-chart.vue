@@ -41,7 +41,6 @@ export default {
           }
         });
       this.chart && this.chart.destroy();
-      console.log('this.$refs.hchart', this.$refs.hchart)
       this.chart = new G2.Chart({
         container: this.$refs.hchart,
         forceFit: true,

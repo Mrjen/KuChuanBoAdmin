@@ -1,5 +1,5 @@
 <template>
-  <div id='circle' ref='circle'></div>
+  <div :id="chartId" :ref="chartId"></div>
 </template>
 
 <script>
@@ -24,43 +24,64 @@ export default {
           { name: '事例四', count: 13 },
           { name: '事例五', count: 9 }]
       }
+    },
+    guideHtml: {
+      type: String,
+      default: "<div style='color:#8c8c8c;font-size: 14px;text-align: center;width: 10em;'>男女<br><span style='color:#8c8c8c;font-size:20px'>性别</span>分布</div>"
+    },
+    chartId: {
+      type: String,
+      default: null
     }
+  },
+  created() {
+    console.log('this.chartId', this.chartId)
   },
   mounted() {
     // this.chartWidth = parseFloat(getComputedStyle(this.$refs.c12).width);
+    console.log('this.chartId', this.chartId)
+    // const _datas = JSON.parse(JSON.stringify(this.chartData));
     this.drawChart(this.chartData);
   },
   watch: {
     chartData: function(val, oldVal) {
       // 监听chartData，当放生变化时，触发这个回调函数绘制图表
       // console.log('new:', val, 'old:', oldVal);
+      // const datas = JSON.parse(JSON.stringify(val));
       this.drawChart(val);
+    },
+    chartId: function(val, oldVal) {
+      this.chartId = val;
+      console.log('this.chartId', this.chartId)
     }
   },
   methods: {
-    drawChart(datas) {
-      if (!datas) return false;
+    drawChart(charts_data) {
+      if (!charts_data) return false;
       this.chart && this.chart.destroy();
-      dv.source(datas).transform({
+      dv.source(charts_data).transform({
         type: 'percent',
         field: 'count',
         dimension: 'name',
         as: 'percent'
       });
+
       this.chart = new G2.Chart({
-        container: this.$refs.circle, // 指定图表容器 ID
+        container: this.$refs[this.chartId], // 指定图表容器 ID
         width: 500, // 指定图表宽度
         forceFit: true, //宽度自适应
         height: 400 // 指定图表高度
-      }),
+      });
+
       this.chart.source(dv, {
         percent: {
           formatter: val => {
-            val = (val * 100) + '%';
+            val = (val * 100).toFixed(2) + '%';
             return val;
           }
         }
       });
+
       this.chart.coord('theta', {
         radius: 0.75,
         innerRadius: 0.6
@@ -69,12 +90,14 @@ export default {
         showTitle: false,
         itemTpl: '<li><span style="background-color:{color};" class="g2-tooltip-marker"></span>{name}: {value}</li>'
       });
+
       this.chart.guide().html({
         position: ['50%', '50%'],
-        html: '<div style="color:#8c8c8c;font-size: 14px;text-align: center;width: 10em;">男女<br><span style="color:#8c8c8c;font-size:20px">性别</span>分布</div>',
+        html: this.guideHtml,
         alignX: 'middle',
         alignY: 'middle'
       });
+      
       const interval = this.chart.intervalStack()
         .position('percent')
         .color('name')

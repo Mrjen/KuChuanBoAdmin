@@ -36,17 +36,17 @@ export const constantRouterMap = [
       meta: { title: '总览', icon: 'dashboard' }
     }]
   },
-  {
-    path: '/shareInfo',
-    component: Layout,
-    redirect: '/shareInfo',
-    name: 'shareInfo',
-    children: [{
-      path: 'shareInfo',
-      component: () => import('@/views/shareInfo/index'),
-      meta: { title: '分享信息', icon: 'example' }
-    }]
-  },
+  // {
+  //   path: '/shareInfo',
+  //   component: Layout,
+  //   redirect: '/shareInfo',
+  //   name: 'shareInfo',
+  //   children: [{
+  //     path: 'shareInfo',
+  //     component: () => import('@/views/shareInfo/index'),
+  //     meta: { title: '分享信息', icon: 'example' }
+  //   }]
+  // },
   {
     path: '/pageAnalysis',
     component: Layout,
@@ -69,28 +69,28 @@ export const constantRouterMap = [
       meta: { title: '用户留存', icon: 'user' }
     }]
   },
-  {
-    path: '/userActicity',
-    component: Layout,
-    redirect: '/userActicity',
-    name: 'userActicity',
-    children: [{
-      path: 'userActicity',
-      component: () => import('@/views/userActicity/index'),
-      meta: { title: '用户活跃度', icon: 'user-activity' }
-    }]
-  },
-  {
-    path: '/userFrom',
-    component: Layout,
-    redirect: '/userFrom',
-    name: 'userFrom',
-    children: [{
-      path: 'userFrom',
-      component: () => import('@/views/userFrom/index'),
-      meta: { title: '用户来源', icon: 'user-from' }
-    }]
-  },
+  // {
+  //   path: '/userActicity',
+  //   component: Layout,
+  //   redirect: '/userActicity',
+  //   name: 'userActicity',
+  //   children: [{
+  //     path: 'userActicity',
+  //     component: () => import('@/views/userActicity/index'),
+  //     meta: { title: '用户活跃度', icon: 'user-activity' }
+  //   }]
+  // },
+  // {
+  //   path: '/userFrom',
+  //   component: Layout,
+  //   redirect: '/userFrom',
+  //   name: 'userFrom',
+  //   children: [{
+  //     path: 'userFrom',
+  //     component: () => import('@/views/userFrom/index'),
+  //     meta: { title: '用户来源', icon: 'user-from' }
+  //   }]
+  // },
   {
     path: '/userPortrait',
     component: Layout,

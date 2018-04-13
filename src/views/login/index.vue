@@ -22,10 +22,10 @@
           Sign in
         </el-button>
       </el-form-item>
-      <div class="tips">
+      <!-- <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
         <span> password: admin</span>
-      </div>
+      </div> -->
     </el-form>
   </div>
 </template>
@@ -77,10 +77,13 @@ export default {
           this.loading = true
           this.$store.dispatch('Login', this.loginForm).then(() => {
             this.loading = false
-            this.$router.push({ path: '/' })
+            console.log('登录')
+            this.$router.push({ path: '../dashboard'})
+            // this.$router.push({ path: '/' })
           }).catch(() => {
             this.loading = false
-            // this.$router.push({ path: '/' })
+            console.log('登录1')
+            this.$router.push({ path: '../dashboard' })
           })
         } else {
           console.log('error submit!!')

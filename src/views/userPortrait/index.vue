@@ -4,7 +4,7 @@
    <mySection @selectUser="changeUser1" @selsectDate="changeDate1" title="性别及年龄分布">
       <div class="chart-div">
             <div class="circle-item item">
-              <circleChart :chartData="userSexData"></circleChart>
+              <circleChart1 :chartData="userSexData" :chartId="'chart1'" id="chart1"></circleChart1>
             </div>
             <div class="column-item item">
                 <columnChart :chartData="userAgeData"></columnChart>
@@ -25,20 +25,20 @@
    </mySection>
 
 <!-- 终端分布 -->
-  <mySection @selectUser="changeUser2" @selsectDate="changeDate2" title="终端分布">
+  <mySection @selectUser="changeUser3" @selsectDate="changeDate3" title="终端分布">
       <div class="chart-div">
             <div class="circle-item item">
-              <MapChart :mapData="provinceData"></MapChart>
+              <circleChart2 :chartData="terminalData"
+                            :chartId="'chart2'" id="chart2"
+                           :guideHtml="terminalGuide1"></circleChart2>
             </div>
             <div class="column-item item">
-                <horizontalChart :chartData="provinceDataMax"></horizontalChart>
+              <circleChart3  :chartData="deviceTypeData"
+                             :chartId="'chart3'" id="chart3"
+                             :guideHtml="terminalGuide2"></circleChart3>
             </div>
       </div>
-   </mySection>
-
-   
-   
-   
+   </mySection>   
  </div>
 </template>
 
@@ -49,7 +49,9 @@ import tagTab from '../pageAnalysis/components/tab-tag';
 import MapChart from './components/map-chart';
 import myTabs from '../userRetention/components/my-tabs';
 import mySection from './components/section';
-import circleChart from './components/circle-chart';
+import circleChart1 from './components/circle-chart1';
+import circleChart2 from './components/circle-chart2';
+import circleChart3 from './components/circle-chart3';
 import columnChart from './components/column-chart';
 import { setInterval } from 'timers';
 import horizontalChart from './components/horizontal-chart'
@@ -57,15 +59,25 @@ export default {
   name: 'userPortrait',
   data() {
     return {
+      chartId1: 'chart1',
       userSexData: [],                   // 用户性别分布
       userAgeData: [],                   // 用户年龄分布
       userType1: 'visit_uv_new',         // 默认用户类型
       userDate1: -1,                      // 默认请求昨天数据 图表01
 
+      chartId2: 'chart2',
       provinceData: [],
       userType2: 'visit_uv_new',         // 默认用户类型
       userDate2: -1,
-      provinceDataMax: []
+      provinceDataMax: [],
+
+      chartId3: 'chart3',
+      terminalGuide1: "<div style='color:#8c8c8c;font-size: 14px;text-align: center;width: 10em;'>用户<br><span style='color:#8c8c8c;font-size:20px'>终端</span>分布</div>",
+      terminalGuide2: "<div style='color:#8c8c8c;font-size: 14px;text-align: center;width: 10em;'>用户<br><span style='color:#8c8c8c;font-size:20px'>机型</span>分布</div>",
+      terminalData: [],
+      userType3: 'visit_uv_new',
+      userDate3: -1,
+      deviceTypeData: []
     }
   },
   components:{
@@ -73,7 +85,9 @@ export default {
     MapChart,
     myTabs,
     mySection,
-    circleChart,
+    'circleChart1': circleChart1,
+    'circleChart2': circleChart2,
+    'circleChart3': circleChart3,
     columnChart,
     horizontalChart
   },
@@ -88,11 +102,17 @@ export default {
     const provinceData = await this._getData({ type: this.userType2, field: 'province', time: this.userDate2 });
     this.provinceData = this.fromProvince(provinceData.data.data)
     this.provinceDataMax = this.getArrayMax(this.provinceData)
+
+    // section3
+    const terminalData = await this._getData({ type: this.userType3, field: 'platforms', time: this.userDate3 })
+    this.terminalData = this.fromDevice(terminalData.data.data)
+    const deviceTypeData = await this._getData({ type: this.userType3, field: 'device', time: this.userDate3 })
+    deviceTypeData.data.data.map(el => {
+      el.count = el.value
+    })
+    this.deviceTypeData = deviceTypeData.data.data;
   },
   methods: {
-    changeMyTabs(type, idx) {
-      console.log(type, idx)
-    },
     // 性别修改用户类型
     async changeUser1(value) {
       // console.log('修改第1个用户类型', value)
@@ -120,6 +140,26 @@ export default {
       const provinceData = await this._getData({ type: this.userType2, field: 'province', time: value });
       this.provinceData = this.fromProvince(provinceData.data.data)
       this.provinceDataMax = this.getArrayMax(this.provinceData)
+    },
+    async changeUser3(value) {
+      console.log('修改第三个用户')
+      const terminalData = await this._getData({ type: value, field: 'platforms', time: this.userDate3 })
+      this.terminalData = this.fromDevice(terminalData.data.data)
+      const deviceTypeData = await this._getData({ type: value, field: 'device', time: this.userDate3 })
+      deviceTypeData.data.data.map(el => {
+        el.count = el.value
+      })
+      this.deviceTypeData = deviceTypeData.data.data;
+    },
+    async changeDate3(value) {
+      console.log('修改第三个用户')
+      const terminalData = await this._getData({ type: this.userType3, field: 'platforms', time: value })
+      this.terminalData = this.fromDevice(terminalData.data.data)
+      const deviceTypeData = await this._getData({ type: this.userType3, field: 'device', time: value })
+      deviceTypeData.data.data.map(el => {
+        el.count = el.value
+      })
+      this.deviceTypeData = deviceTypeData.data.data;
     },
     async _getData(data = { time: -1, type: 'visit_uv_new', field: 'genders' }) {
       const sexData = await axios.get(api.UserPortrait, {
@@ -217,6 +257,16 @@ export default {
       }
       // 返回数组
       return Array_tmp.splice(0, 10).reverse();
+    },
+    fromDevice(arr) {
+      const arry = [];
+      for (const key in arr) {
+        arry.push({ 'count': arr[key] })
+      }
+      arry[0].name = '其他';
+      arry[1].name = 'iPhone';
+      arry[2].name = 'Android';
+      return arry;
     }
   }
 }

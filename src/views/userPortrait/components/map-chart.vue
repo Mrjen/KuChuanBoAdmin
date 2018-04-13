@@ -76,6 +76,13 @@ export default {
       metrics: ["人数"],
       dataType: {
         面积: "KMB"
+      },
+      itemStyle: {
+        normal: {
+          borderColor: '#fff',
+          areaColor:['#b2e2ff'],
+          color: '#f2637b'
+        }
       }
     };
   },
